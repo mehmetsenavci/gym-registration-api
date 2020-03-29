@@ -5,17 +5,21 @@ exports.createUser = async (req, res, next) => {
         const newUser = await User.create({
             name: req.body.name,
             email: req.body.email,
+            password: req.body.password,
             role: req.body.role,
             birthDate: req.body.birthDate
         });
-        res.status(200).json({
+        res.status(201).json({
             status: 'success',
             data: {
                 newUser
             }
         });
     } catch (err) {
-        console.log(err);
+        res.status(500).json({
+            status: 'error',
+            message: err
+        });
     }
 };
 
@@ -27,36 +31,61 @@ exports.getAllUsers = async (req, res, next) => {
             data: users
         });
     } catch (err) {
-        console.log(err);
+        res.status(500).json({
+            status: 'error',
+            message: err
+        });
     }
 };
 
-exports.getUser = (req, res, next) => {
+exports.getUser = async (req, res, next) => {
     try {
+        const user = await User.findById(req.params.id);
         res.status(200).json({
-            name: 'Mehmet',
-            birthDate: '12.12.1998'
+            status: 'success',
+            data: user
         });
-        console.log(req.params);
-    } catch (err) {}
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: err
+        });
+    }
 };
 
-exports.updateUser = (req, res, next) => {
+exports.updateUser = async (req, res, next) => {
     try {
+        const updatedUser = await User.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            {
+                new: true,
+                runValidators: true
+            }
+        );
         res.status(200).json({
-            name: 'Mehmet',
-            birthDate: '12.12.1998'
+            status: 'success',
+            data: updatedUser
         });
-        console.log(req.params);
-    } catch (err) {}
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: err
+        });
+    }
 };
 
-exports.deleteUser = (req, res, next) => {
+exports.deleteUser = async (req, res, next) => {
     try {
-        res.status(200).json({
-            name: 'Mehmet',
-            birthDate: '12.12.1998'
+        await User.findByIdAndRemove(req.params.id);
+        res.status(204).json({
+            status: 'success',
+            data: null
         });
-        console.log(req.params);
-    } catch (err) {}
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: err
+        });
+    }
 };

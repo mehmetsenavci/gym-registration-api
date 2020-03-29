@@ -3,15 +3,16 @@ const mongoose = require('mongoose');
 const userSchema = mongoose.Schema({
     name: {
         type: String,
-        require: [true, 'Please enter your name.']
+        required: [true, 'Please enter your name.']
     },
     email: {
         type: String,
-        require: [true, 'Please enter your email']
+        required: [true, 'Please enter your email']
     },
     password: {
         type: String,
-        require: [true, 'Please enter your password.']
+        required: [true, 'Please enter your password.']
+        // select: false
     },
     role: {
         type: String,
@@ -20,7 +21,7 @@ const userSchema = mongoose.Schema({
     },
     birthDate: {
         type: Date,
-        require: [true, 'Please enter your birth date.']
+        required: [true, 'Please enter your birth date.']
     },
     createDate: {
         type: Date,
