@@ -1,18 +1,13 @@
-const User = require('./../models/userModel');
+const Session = require('./../models/sessionModel');
 
-exports.createUser = async (req, res, next) => {
+exports.createSession = async (req, res, next) => {
     try {
-        const newUser = await User.create({
-            name: req.body.name,
-            email: req.body.email,
-            password: req.body.password,
-            role: req.body.role,
-            birthDate: req.body.birthDate
-        });
+        // Validation problem
+        const newSession = await Session.create(req.body);
         res.status(201).json({
             status: 'success',
             data: {
-                newUser
+                newSession
             }
         });
     } catch (err) {
@@ -23,13 +18,14 @@ exports.createUser = async (req, res, next) => {
     }
 };
 
-exports.getAllUsers = async (req, res, next) => {
+exports.getSessions = async (req, res, next) => {
+    const sessions = await Session.find();
+
     try {
-        const users = await User.find();
         res.status(200).json({
             status: 'success',
             data: {
-                users
+                sessions
             }
         });
     } catch (err) {
@@ -40,13 +36,16 @@ exports.getAllUsers = async (req, res, next) => {
     }
 };
 
-exports.getUser = async (req, res, next) => {
+exports.getSession = async (req, res, next) => {
+    const session = await Session.findById(req.params.id).populate(
+        'trainer trainee'
+    );
+
     try {
-        const user = await User.findById(req.params.id);
         res.status(200).json({
             status: 'success',
             data: {
-                user
+                session
             }
         });
     } catch (err) {
@@ -57,20 +56,20 @@ exports.getUser = async (req, res, next) => {
     }
 };
 
-exports.updateUser = async (req, res, next) => {
+exports.updateSession = async (req, res, next) => {
+    const updatedSession = await Session.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        {
+            new: true,
+            runValidators: true
+        }
+    );
     try {
-        const updatedUser = await User.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            {
-                new: true,
-                runValidators: true
-            }
-        );
         res.status(200).json({
             status: 'success',
             data: {
-                updatedUser
+                updatedSession
             }
         });
     } catch (err) {
@@ -81,9 +80,9 @@ exports.updateUser = async (req, res, next) => {
     }
 };
 
-exports.deleteUser = async (req, res, next) => {
+exports.deleteSession = async (req, res, next) => {
+    await Session.findByIdAndRemove(req.params.id);
     try {
-        await User.findByIdAndRemove(req.params.id);
         res.status(204).json({
             status: 'success',
             data: null
