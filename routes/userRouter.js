@@ -8,7 +8,11 @@ router.route('/login').post(authController.login);
 
 router
     .route('/')
-    .get(authController.isLoggedIn, userController.getAllUsers)
+    .get(
+        /* authController.isLoggedIn,
+        authController.restrictedTo('trainer'), */
+        userController.getAllUsers
+    )
     .post(userController.createUser);
 
 router

@@ -70,6 +70,7 @@ exports.login = async (req, res, next) => {
 };
 
 exports.isLoggedIn = async (req, res, next) => {
+    // Is token send by req via authorization header ?
     if (
         !req.headers.authorization ||
         !req.headers.authorization.startsWith('Bearer ')
@@ -78,14 +79,24 @@ exports.isLoggedIn = async (req, res, next) => {
 
     const token = req.headers.authorization.split(' ')[1];
 
+    // Is token valid ?
     const decoded = await jwt.verify(token, process.env.JWT_SECRET);
-
     const user = await User.findById({ _id: decoded._id });
-
+    // Is user deleted ?
     if (!user) return next(new Error('User not found'));
-    console.log(user);
 
+    req.loggedIn = user;
     // Check if user changed password.
 
     next();
+};
+
+exports.restrictedTo = (...roles) => {
+    return (req, res, next) => {
+        if (roles.includes(req.loggedIn.role)) {
+            next();
+        } else {
+            next(new Error('This use is unauthorized'));
+        }
+    };
 };
