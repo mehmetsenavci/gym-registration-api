@@ -35,9 +35,10 @@ exports.getAllUsers = async (req, res, next) => {
             /\b(gte|gt|lte|lt|ne)\b/g,
             (match) => `$${match}`
         );
+        const filter = JSON.parse(queryStr);
         // Sets the field values from the req.query object and sets it to '-__v' if nothing is passed.
         const fields = req.query.fields
-            ? req.query.fields.split(',').join(' ')
+            ? `${req.query.fields.split(',').join(' ')} birthDate createDate`
             : '-__v';
         // Sets the sorting values from the req.query object and sets it to '-__createDate' if nothing is passed.
         const sortBy = req.query.sort
@@ -47,7 +48,6 @@ exports.getAllUsers = async (req, res, next) => {
         const page = req.query.page || 1;
         const limit = 10;
         const paginate = { skip: limit * page - limit, limit: limit };
-        const filter = JSON.parse(queryStr);
 
         const query = User.find(filter, fields, paginate).sort(sortBy);
         // .skip(2 * page - 2)
@@ -63,6 +63,7 @@ exports.getAllUsers = async (req, res, next) => {
             },
         });
     } catch (err) {
+        console.error(err);
         res.status(500).json({
             status: 'error',
             message: err,

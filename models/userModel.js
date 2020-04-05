@@ -55,7 +55,7 @@ userSchema.virtual('birthDateStr').get(function () {
 });
 
 userSchema.virtual('createDateStr').get(function () {
-    return this.createDate.toDateString();
+    return this.createDate.toDateString() + '';
 });
 
 userSchema.virtual('age').get(function () {
