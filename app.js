@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const userRouter = require('./routes/userRouter');
 const sessionRouter = require('./routes/sessionRouter');
+const requestRouter = require('./routes/requestRouter');
 
 dotenv.config({ path: './config.env' });
 
@@ -16,5 +17,6 @@ app.use(express.json());
 
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/sessions', sessionRouter);
+app.use('/api/v1/requests', requestRouter);
 
 module.exports = app;

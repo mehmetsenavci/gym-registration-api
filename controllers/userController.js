@@ -24,7 +24,6 @@ exports.createUser = async (req, res, next) => {
     }
 };
 
-// Continue adding queries
 exports.getAllUsers = async (req, res, next) => {
     try {
         // Transform querying functionalty to a class

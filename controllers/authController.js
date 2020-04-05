@@ -10,24 +10,24 @@ exports.signup = async (req, res, next) => {
             password: req.body.password,
             passwordConfirm: req.body.passwordConfirm,
             role: req.body.role,
-            birthDate: req.body.birthDate
+            birthDate: req.body.birthDate,
         });
         // 2) Sign a jwt token to user.
         const token = jwt.sign({ _id: newUser._id }, process.env.JWT_SECRET, {
-            expiresIn: process.env.JWT_EXPIRES_IN
+            expiresIn: process.env.JWT_EXPIRES_IN,
         });
         // 3) Send response.
         res.status(201).json({
             status: 'success',
             token,
             data: {
-                user: newUser
-            }
+                user: newUser,
+            },
         });
     } catch (err) {
         res.status(500).json({
             status: 'error',
-            message: err
+            message: err,
         });
     }
 };
@@ -48,23 +48,20 @@ exports.login = async (req, res, next) => {
         // console.log({ _id: user._id });
 
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-            expiresIn: process.env.JWT_EXPIRES_IN
+            expiresIn: process.env.JWT_EXPIRES_IN,
         });
-
-        console.log(user);
-        console.log({ _id: user._id });
 
         res.status(201).json({
             status: 'success',
             token,
             data: {
-                user
-            }
+                user,
+            },
         });
     } catch (err) {
         res.status(400).json({
             status: 'error',
-            message: err
+            message: err,
         });
     }
 };

@@ -6,13 +6,12 @@ const authController = require('../controllers/authController');
 router.route('/signup').post(authController.signup);
 router.route('/login').post(authController.login);
 
+router.use(authController.isLoggedIn);
+router.use(authController.restrictedTo('trainer'));
+
 router
     .route('/')
-    .get(
-        /* authController.isLoggedIn,
-        authController.restrictedTo('trainer'), */
-        userController.getAllUsers
-    )
+    .get(userController.getAllUsers)
     .post(userController.createUser);
 
 router
