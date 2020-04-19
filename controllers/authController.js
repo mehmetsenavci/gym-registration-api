@@ -1,9 +1,10 @@
 const jwt = require('jsonwebtoken');
 const User = require('./../models/userModel');
+const promiseCatch = require('./../utils/promiseCatch');
+const APIError = require('./../utils/apiError');
 
-exports.signup = async (req, res, next) => {
-    try {
-        // 1) Create user documet.
+module.exports = {
+    signup: promiseCatch(async (req, res, next) => {
         const newUser = await User.create({
             name: req.body.name,
             email: req.body.email,
@@ -12,11 +13,11 @@ exports.signup = async (req, res, next) => {
             role: req.body.role,
             birthDate: req.body.birthDate,
         });
-        // 2) Sign a jwt token to user.
+
         const token = jwt.sign({ _id: newUser._id }, process.env.JWT_SECRET, {
             expiresIn: process.env.JWT_EXPIRES_IN,
         });
-        // 3) Send response.
+
         res.status(201).json({
             status: 'success',
             token,
@@ -24,25 +25,17 @@ exports.signup = async (req, res, next) => {
                 user: newUser,
             },
         });
-    } catch (err) {
-        res.status(500).json({
-            status: 'error',
-            message: err,
-        });
-    }
-};
-
-exports.login = async (req, res, next) => {
-    try {
+    }),
+    login: promiseCatch(async (req, res, next) => {
         const { email, password } = req.body;
 
         if (!email || !password)
-            return next(new Error('This user does not exists!'));
+            return next(new APIError('This user does not exists!'));
 
         const user = await User.findOne({ email }).select('+password');
 
         if (!user || !(await user.isCorrectPassword(password, user.password)))
-            return next(new Error('Invalid password'));
+            return next(new APIError('Invalid password'));
 
         // console.log(user);
         // console.log({ _id: user._id });
@@ -58,42 +51,33 @@ exports.login = async (req, res, next) => {
                 user,
             },
         });
-    } catch (err) {
-        res.status(400).json({
-            status: 'error',
-            message: err,
-        });
-    }
-};
+    }),
+    isLoggedIn: promiseCatch(async (req, res, next) => {
+        if (
+            !req.headers.authorization ||
+            !req.headers.authorization.startsWith('Bearer ')
+        )
+            return next(new APIError('Invalid autharization type'));
 
-exports.isLoggedIn = async (req, res, next) => {
-    // Is token send by req via authorization header ?
-    if (
-        !req.headers.authorization ||
-        !req.headers.authorization.startsWith('Bearer ')
-    )
-        return next(new Error('Invalid autharization type'));
+        const token = req.headers.authorization.split(' ')[1];
 
-    const token = req.headers.authorization.split(' ')[1];
+        const decoded = await jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById({ _id: decoded._id });
 
-    // Is token valid ?
-    const decoded = await jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById({ _id: decoded._id });
-    // Is user deleted ?
-    if (!user) return next(new Error('User not found'));
+        if (!user) return next(new APIError('User not found'));
 
-    req.loggedIn = user;
-    // Check if user changed password.
+        req.loggedIn = user;
+        // Check if user changed password.
 
-    next();
-};
-
-exports.restrictedTo = (...roles) => {
-    return (req, res, next) => {
-        if (roles.includes(req.loggedIn.role)) {
-            next();
-        } else {
-            next(new Error('This use is unauthorized'));
-        }
-    };
+        next();
+    }),
+    restrictedTo: (...roles) => {
+        return (req, res, next) => {
+            if (roles.includes(req.loggedIn.role)) {
+                next();
+            } else {
+                next(new APIError('This use is unauthorized'));
+            }
+        };
+    },
 };

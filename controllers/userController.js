@@ -1,7 +1,9 @@
 const User = require('./../models/userModel');
+const promiseCatch = require('./../utils/promiseCatch');
+const APIError = require('./../utils/apiError');
 
-exports.createUser = async (req, res, next) => {
-    try {
+module.exports = {
+    createUser: promiseCatch(async (req, res, next) => {
         const newUser = await User.create({
             name: req.body.name,
             email: req.body.email,
@@ -16,17 +18,8 @@ exports.createUser = async (req, res, next) => {
                 newUser,
             },
         });
-    } catch (err) {
-        res.status(500).json({
-            status: 'error',
-            message: err,
-        });
-    }
-};
-
-exports.getAllUsers = async (req, res, next) => {
-    try {
-        // Transform querying functionalty to a class
+    }),
+    getAllUsers: promiseCatch(async (req, res, next) => {
         const exclude = ['sort', 'page', 'limit', 'fields'];
         const queryObj = { ...req.query };
 
@@ -36,15 +29,15 @@ exports.getAllUsers = async (req, res, next) => {
             (match) => `$${match}`
         );
         const filter = JSON.parse(queryStr);
-        // Sets the field values from the req.query object and sets it to '-__v' if nothing is passed.
+
         const fields = req.query.fields
             ? `${req.query.fields.split(',').join(' ')} birthDate createDate`
             : '-__v';
-        // Sets the sorting values from the req.query object and sets it to '-__createDate' if nothing is passed.
+
         const sortBy = req.query.sort
             ? req.query.sort.split(',').join(' ')
             : '-createDate';
-        // Pagination variables
+
         const page = req.query.page || 1;
         const limit = 10;
         const paginate = { skip: limit * page - limit, limit: limit };
@@ -62,17 +55,8 @@ exports.getAllUsers = async (req, res, next) => {
                 users,
             },
         });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({
-            status: 'error',
-            message: err,
-        });
-    }
-};
-
-exports.getUser = async (req, res, next) => {
-    try {
+    }),
+    getUser: promiseCatch(async (req, res, next) => {
         const user = await User.findById(req.params.id);
         res.status(200).json({
             status: 'success',
@@ -80,16 +64,8 @@ exports.getUser = async (req, res, next) => {
                 user,
             },
         });
-    } catch (err) {
-        res.status(500).json({
-            status: 'error',
-            message: err,
-        });
-    }
-};
-
-exports.updateUser = async (req, res, next) => {
-    try {
+    }),
+    updateUser: promiseCatch(async (req, res, next) => {
         const updatedUser = await User.findByIdAndUpdate(
             req.params.id,
             req.body,
@@ -104,25 +80,12 @@ exports.updateUser = async (req, res, next) => {
                 updatedUser,
             },
         });
-    } catch (err) {
-        res.status(500).json({
-            status: 'error',
-            message: err,
-        });
-    }
-};
-
-exports.deleteUser = async (req, res, next) => {
-    try {
+    }),
+    deleteUser: promiseCatch(async (req, res, next) => {
         await User.findByIdAndRemove(req.params.id);
         res.status(204).json({
             status: 'success',
             data: null,
         });
-    } catch (err) {
-        res.status(500).json({
-            status: 'error',
-            message: err,
-        });
-    }
+    }),
 };
