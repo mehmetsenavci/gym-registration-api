@@ -18,6 +18,7 @@
     "homepage": "https://github.com/mehmetsenavci/gym-registration-api#readme",
     "dependencies": {
         "bcrypt": "^4.0.1",
+        "dot-prop": "^5.2.0",
         "dotenv": "^8.2.0",
         "express": "^4.17.1",
         "jsonwebtoken": "^8.5.1",
@@ -35,6 +36,6 @@
         "eslint-plugin-prettier": "^3.1.2",
         "eslint-plugin-react": "^7.19.0",
         "eslint-plugin-react-hooks": "^3.0.0",
-        "nodemon": "^2.0.2"
+        "nodemon": "^2.0.4"
     }
 }
